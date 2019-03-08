@@ -1,5 +1,7 @@
-from typing import Dict, Any
+from typing import Any, Dict
+
 from pyls import hookimpl
+
 from pyls_cwrap.wrap import beautify
 
 
@@ -17,37 +19,36 @@ def pyls_format_range(document, range):
 
 def format_document(document, outcome, range=None):
     if range is None:
-        range = {'start': {'line': 0, 'character': 0},
-                 'end': {'line': len(document.lines), 'character': 0}}
+        range = {
+            "start": {"line": 0, "character": 0},
+            "end": {"line": len(document.lines), "character": 0},
+        }
         text = document.source
     else:
-        range['start']['character'] = 0
-        range['end']['character'] = 0
-        range['end']['line'] += 1
-        start = range['start']['line']
-        end = range['end']['line']
-        text = ''.join(document.lines[start:end])
+        range["start"]["character"] = 0
+        range["end"]["character"] = 0
+        # range["end"]["line"] += 1  # For cursor staying. (VIM-binding?)
+        start = range["start"]["line"]
+        end = range["end"]["line"]
+        text = "".join(document.lines[start:end])
 
     result = outcome.get_result()
     if result:
-        text = result[0]['newText']
+        text = result[0]["newText"]
 
-    formatted_text = beautify(text)
-    formatted_text = '# abcdefghijklmnop\n' + formatted_text
+    config = load_config(document.path)
+
+    formatted_text = beautify(text, **config)
 
     if formatted_text == text:
         return
 
-    result = [{
-        'range': range,
-        'newText': formatted_text
-    }]
-
+    result = [{"range": range, "newText": formatted_text}]
     outcome.force_result(result)
 
 
 def load_config(filename: str) -> Dict[str, Any]:
-    defaults = {'max_line_length': 79}
+    defaults = {"max_line_length": 79}
 
     try:
         import pycodestyle
@@ -60,6 +61,6 @@ def load_config(filename: str) -> Dict[str, Any]:
     except Exception:
         return defaults
 
-    config = {'max_line_length': max_line_length}
+    config = {"max_line_length": max_line_length}
 
     return {**defaults, **config}

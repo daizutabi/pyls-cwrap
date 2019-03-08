@@ -11,32 +11,33 @@ class Kind(Enum):
     CODE = 2
 
 
-COMMENT_HEADER = re.compile(r'^#[\s#]*')
+COMMENT_HEADER = re.compile(r"^#[\s#]*")
 
 
 def _new_line(source):
-    return '\r\n' if '\r\n' in source else '\n'
+    return "\r\n" if "\r\n" in source else "\n"
 
 
-def beautify(source: str, length: int = 79) -> str:
+def beautify(source: str, max_line_length: int = 79) -> str:
     nl = _new_line(source)
-    return nl.join(wrapper(source, length))
+    return nl.join(wrapper(source, max_line_length))
 
 
-def wrapper(source: str, length: int) -> Iterator[str]:
+def wrapper(source: str, max_line_length: int) -> Iterator[str]:
     for kind, line in joiner(source):
         if kind == Kind.CODE:
             yield line
         else:
-            yield from wrap(line, length)
+            yield from wrap(line, max_line_length)
 
 
-def wrap(line: str, length: int, pre: str = '# ') -> Iterator[str]:
-    length -= len(pre)
+def wrap(line: str, max_line_length: int, pre: str = "# ") -> Iterator[str]:
+    max_line_length -= len(pre)
     is_wides = [is_wide(x) for x in line]
     position = list(accumulate(2 if x else 1 for x in is_wides))
-    splitterable = [False] + [x == ' ' or (is_wides[k] and is_wides[k + 1])
-                              for k, x in enumerate(line[1:])]
+    splitterable = [False] + [
+        x == " " or (is_wides[k] and is_wides[k + 1]) for k, x in enumerate(line[1:])
+    ]
 
     begin = end = head = 0
     while True:
@@ -46,17 +47,17 @@ def wrap(line: str, length: int, pre: str = '# ') -> Iterator[str]:
         if head >= len(line):
             yield pre + line[begin:].strip()
             break
-        elif position[head] - position[begin] - 1 >= length and begin != end:
-            yield pre + line[begin:end + 1].strip()
+        elif position[head] - position[begin] - 1 >= max_line_length and begin != end:
+            yield pre + line[begin : end + 1].strip()
             begin = end = end + 1
 
 
 def is_wide(character: str) -> bool:
-    return unicodedata.east_asian_width(character) in ['F', 'W']
+    return unicodedata.east_asian_width(character) in ["F", "W"]
 
 
 def is_splittable(line, head) -> bool:
-    return line[head] == ' ' or is_wide(head - 1) or is_wide(head)
+    return line[head] == " " or is_wide(head - 1) or is_wide(head)
 
 
 def joiner(source: str) -> Iterator[Tuple[Kind, str]]:
@@ -64,9 +65,9 @@ def joiner(source: str) -> Iterator[Tuple[Kind, str]]:
 
     def joint(tail: str, head: str) -> str:
         if is_wide(tail) and is_wide(head):
-            return ''
+            return ""
         else:
-            return ' '
+            return " "
 
     def join(first: str, second: str) -> str:
         return joint(first[-1], second[0]).join([first, second])
@@ -90,8 +91,8 @@ def joiner(source: str) -> Iterator[Tuple[Kind, str]]:
 def splitter(source: str) -> Iterator[Tuple[Kind, str]]:
     nl = _new_line(source)
     for line in source.split(nl):
-        if line.startswith('#'):
-            line = re.sub(COMMENT_HEADER, '', line)
+        if line.startswith("#"):
+            line = re.sub(COMMENT_HEADER, "", line)
             if line:  # Drop comment line without any text.
                 yield Kind.COMMENT, line
         else:
