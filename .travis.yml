@@ -11,6 +11,7 @@ install:
   - pip install -e .[develop]
 
 before_script:
+  - pycodestyle pyls_cwrap
   - flake8 pyls_cwrap
   - mypy pyls_cwrap
 
