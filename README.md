@@ -11,4 +11,12 @@
 [appveyor-image]: https://ci.appveyor.com/api/projects/status/ydou503albfs1vub/branch/master?svg=true
 [appveyor-link]: https://ci.appveyor.com/project/daizutabi/pyls-cwrap
 
-Comment wrapping plugin for python-language-server
+## Comment wrapping plugin for python-language-server
+
+This is a plugin for the Python Language Server (https://github.com/palantir/python-language-server)
+
+Installation
+
+```bash
+pip install pyls-cwrap
+```
