@@ -1,44 +1,65 @@
-# import os
-
+from typing import Dict, Any
 from pyls import hookimpl
 from pyls_cwrap.wrap import beautify
-
-
-def wrap(document, override=None):
-    source = override or document.source
-    wrapped_source = beautify(source)
-
-    if source == wrapped_source:
-        return
-
-    return [{
-        'range': {'start': {'line': 0, 'character': 0},
-                  'end': {'line': len(document.lines), 'character': 0}},
-        'newText': wrapped_source
-    }]
 
 
 @hookimpl(hookwrapper=True)
 def pyls_format_document(document):
     outcome = yield
-    results = outcome.get_result()
-    if results:
-        newResults = wrap(document, results[0]['newText'])
-    else:
-        newResults = wrap(document)
-
-    if newResults:
-        outcome.force_result(newResults)
+    format_document(document, outcome)
 
 
 @hookimpl(hookwrapper=True)
 def pyls_format_range(document, range):
     outcome = yield
-    results = outcome.get_result()
-    if results:
-        newResults = wrap(document, results[0]['newText'])
-    else:
-        newResults = wrap(document)
+    format_document(document, outcome, range)
 
-    if newResults:
-        outcome.force_result(newResults)
+
+def format_document(document, outcome, range=None):
+    if range is None:
+        range = {'start': {'line': 0, 'character': 0},
+                 'end': {'line': len(document.lines), 'character': 0}}
+        text = document.source
+    else:
+        range['start']['character'] = 0
+        range['end']['character'] = 0
+        range['end']['line'] += 1
+        start = range['start']['line']
+        end = range['end']['line']
+        text = ''.join(document.lines[start:end])
+
+    result = outcome.get_result()
+    if result:
+        text = result[0]['newText']
+
+    formatted_text = beautify(text)
+    formatted_text = '# abcdefghijklmnop\n' + formatted_text
+
+    if formatted_text == text:
+        return
+
+    result = [{
+        'range': range,
+        'newText': formatted_text
+    }]
+
+    outcome.force_result(result)
+
+
+def load_config(filename: str) -> Dict[str, Any]:
+    defaults = {'max_line_length': 79}
+
+    try:
+        import pycodestyle
+    except ImportError:
+        return defaults
+
+    try:
+        style_guide = pycodestyle.StyleGuide(parse_argv=True)
+        max_line_length = style_guide.options.max_line_length
+    except Exception:
+        return defaults
+
+    config = {'max_line_length': max_line_length}
+
+    return {**defaults, **config}
