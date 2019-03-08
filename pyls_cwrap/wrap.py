@@ -11,7 +11,7 @@ class Kind(Enum):
     CODE = 2
 
 
-COMMENT_HEADER = re.compile(r"^#[\s#]*")
+COMMENT_HEADER = re.compile(r"^#\s*")
 
 
 def _new_line(source):
