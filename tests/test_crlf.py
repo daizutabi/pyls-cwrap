@@ -1,4 +1,4 @@
-from pyls_cwrap.wrap import Kind, beautify, joiner, splitter
+from pyls_cwrap.wrap import Kind, format_text, joiner, splitter
 
 
 def test_splitter():
@@ -42,11 +42,11 @@ def test_beautify():
         "\r\n# mno\r\n# pqrさしす\r\n# せとなにぬ\r\n# ねのabc\r\n# def "
         "hij\r\n# klm\r\n# aaaaaaaaaaaaaaaaa\r\n"
     )
-    assert beautify(source, 10) == answer
+    assert format_text(source, 10) == answer
     answer = (
         "a=1\r\n\r\n# あいうえおかきくけこabc def ghi jkl mno pqrさしす\r\n# "
         "せとなにぬねのabc def hij klm aaaaaaaaaaaaaaaaa\r\n"
     )
-    assert beautify(source, 50) == answer
+    assert format_text(source, 50) == answer
 
-    beautify(source, 10)
+    format_text(source, 10)

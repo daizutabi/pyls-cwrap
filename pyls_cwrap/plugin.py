@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 from pyls import hookimpl
 
-from pyls_cwrap.wrap import beautify
+from pyls_cwrap.wrap import format_text
 
 
 @hookimpl(hookwrapper=True)
@@ -27,7 +27,7 @@ def format_document(document, outcome, range=None):
     else:
         range["start"]["character"] = 0
         range["end"]["character"] = 0
-        # range["end"]["line"] += 1  # For cursor staying. (VIM-binding?)
+        # range["end"]["line"] += 1  # For cursor staying.
         start = range["start"]["line"]
         end = range["end"]["line"]
         text = "".join(document.lines[start:end])
@@ -38,7 +38,7 @@ def format_document(document, outcome, range=None):
 
     config = load_config(document.path)
 
-    formatted_text = beautify(text, **config)
+    formatted_text = format_text(text, **config)
 
     if formatted_text == text:
         return

@@ -1,4 +1,4 @@
-from pyls_cwrap.wrap import Kind, beautify, joiner, splitter, wrap
+from pyls_cwrap.wrap import Kind, format_text, joiner, splitter, wrap
 
 
 def test_splitter():
@@ -55,7 +55,7 @@ def test_wrap_wide_character():
     assert output[2] == "# stえおかきく."
 
 
-def test_beautify():
+def test_format_text():
     source = (
         "a=1\n\n# あいうえおかきく\n# けこabc def ghi jkl mno pqr"
         "さしすせとなにぬねのabc def\n# hij klm aaaaaaaaaaaaaaaaa\n"
@@ -65,9 +65,21 @@ def test_beautify():
         "# pqrさしす\n# せとなにぬ\n# ねのabc\n# def hij\n# klm\n# aaaa"
         "aaaaaaaaaaaaa\n"
     )
-    assert beautify(source, 10) == answer
+    assert format_text(source, 10) == answer
     answer = (
         "a=1\n\n# あいうえおかきくけこabc def ghi jkl mno pqrさしす\n# "
         "せとなにぬねのabc def hij klm aaaaaaaaaaaaaaaaa\n"
     )
-    assert beautify(source, 50) == answer
+    assert format_text(source, 50) == answer
+
+
+def test_escape():
+    source = "a=1\n# # Test\n# ~~~abc\n# a=1\n# b=1\n# ~~~\n# a\n# b\n"
+    answer = "a=1\n# # Test\n# ~~~abc\n# a=1\n# b=1\n# ~~~\n# a b\n"
+    assert format_text(source, 50) == answer
+
+
+def test_header():
+    source = "a=1\n# # Test\n# acd\n# b\n"
+    answer = "a=1\n# # Test\n# acd b\n"
+    assert format_text(source) == answer
