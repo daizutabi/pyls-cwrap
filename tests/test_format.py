@@ -1,35 +1,43 @@
-from pyls_cwrap.format import Kind, format_text, joiner, splitter, wrap
+import pytest
+
+from pyls_cwrap.format import format_text, joiner, splitter, wrap
 
 
-def test_splitter():
+@pytest.mark.parametrize("nl", ["\n", "\r\n"])
+def test_splitter(nl):
     source = "a=1\n# c1\n# c2\n\n# c3\nb=1\n"
+    source = source.replace("\n", nl)
     output = list(splitter(source))
-    assert output[0] == (Kind.CODE, "a=1")
-    assert output[1] == (Kind.COMMENT, "c1")
-    assert output[2] == (Kind.COMMENT, "c2")
-    assert output[3] == (Kind.CODE, "")
-    assert output[4] == (Kind.COMMENT, "c3")
-    assert output[5] == (Kind.CODE, "b=1")
+    assert output[0] == ("Code", "a=1")
+    assert output[1] == ("Comment", "c1")
+    assert output[2] == ("Comment", "c2")
+    assert output[3] == ("Code", "")
+    assert output[4] == ("Comment", "c3")
+    assert output[5] == ("Code", "b=1")
 
 
-def test_joiner():
+@pytest.mark.parametrize("nl", ["\n", "\r\n"])
+def test_joiner(nl):
     source = "a=1\n# c1\n# c2\n\n# c3\nb=1\n"
+    source = source.replace("\n", nl)
     output = list(joiner(source))
-    assert output[0] == (Kind.CODE, "a=1")
-    assert output[1] == (Kind.COMMENT, "c1 c2")
-    assert output[2] == (Kind.CODE, "")
-    assert output[3] == (Kind.COMMENT, "c3")
-    assert output[4] == (Kind.CODE, "b=1")
+    assert output[0] == ("Code", "a=1")
+    assert output[1] == ("Comment", "c1 c2")
+    assert output[2] == ("Code", "")
+    assert output[3] == ("Comment", "c3")
+    assert output[4] == ("Code", "b=1")
 
 
-def test_joiner_wide_character():
+@pytest.mark.parametrize("nl", ["\n", "\r\n"])
+def test_joiner_wide_character(nl):
     source = "a=1\n# c1あ\n# いc2\n\n# c3\nb=1\n"
+    source = source.replace("\n", nl)
     output = list(joiner(source))
-    assert output[0] == (Kind.CODE, "a=1")
-    assert output[1] == (Kind.COMMENT, "c1あいc2")
-    assert output[2] == (Kind.CODE, "")
-    assert output[3] == (Kind.COMMENT, "c3")
-    assert output[4] == (Kind.CODE, "b=1")
+    assert output[0] == ("Code", "a=1")
+    assert output[1] == ("Comment", "c1あいc2")
+    assert output[2] == ("Code", "")
+    assert output[3] == ("Comment", "c3")
+    assert output[4] == ("Code", "b=1")
 
 
 def test_wrap():
@@ -55,21 +63,22 @@ def test_wrap_wide_character():
     assert output[2] == "# stえおかきく."
 
 
-def test_format_text():
+@pytest.mark.parametrize("nl", ["\n", "\r\n"])
+def test_format_text(nl):
     source = (
         "a=1\n\n# あいうえおかきく\n# けこabc def ghi jkl mno pqr"
         "さしすせとなにぬねのabc def\n# hij klm aaaaaaaaaaaaaaaaa\n"
-    )
+    ).replace("\n", nl)
     answer = (
         "a=1\n\n# あいうえお\n# かきくけこ\n# abc def\n# ghi jkl\n# mno\n"
         "# pqrさしす\n# せとなにぬ\n# ねのabc\n# def hij\n# klm\n# aaaa"
         "aaaaaaaaaaaaa\n"
-    )
+    ).replace("\n", nl)
     assert format_text(source, 10) == answer
     answer = (
         "a=1\n\n# あいうえおかきくけこabc def ghi jkl mno pqrさしす\n# "
         "せとなにぬねのabc def hij klm aaaaaaaaaaaaaaaaa\n"
-    )
+    ).replace("\n", nl)
     assert format_text(source, 50) == answer
 
 
