@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 from pyls import hookimpl
 
-from pyls_cwrap.wrap import format_text
+from pyls_cwrap.format import format_text
 
 
 @hookimpl(hookwrapper=True)

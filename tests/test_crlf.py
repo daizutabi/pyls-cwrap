@@ -1,4 +1,4 @@
-from pyls_cwrap.wrap import Kind, format_text, joiner, splitter
+from pyls_cwrap.format import Kind, format_text, joiner, splitter
 
 
 def test_splitter():
