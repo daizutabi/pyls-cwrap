@@ -18,6 +18,9 @@ def pyls_format_range(document, range):
 
 
 def format_document(document, outcome, range=None):
+    if not document.source.startswith("# #"):
+        return
+
     if range is None:
         range = {
             "start": {"line": 0, "character": 0},
