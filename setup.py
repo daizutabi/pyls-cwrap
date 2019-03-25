@@ -20,7 +20,6 @@ setup(
     platforms="Any",
     packages=find_packages(),
     provides=["pyls_cwrap"],
-    install_requires=["python-language-server"],
-    extras_require={"develop": ["pytest", "flake8", "mypy", "pycodestyle"]},
+    install_requires=["python-language-server", "pheasant"],
     entry_points={"pyls": ["pyls_cwrap = pyls_cwrap.plugin"]},
 )

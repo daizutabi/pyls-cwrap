@@ -1,8 +1,8 @@
-from typing import Any, Dict
-
 from pyls import hookimpl
 
-from pyls_cwrap.format import format_text
+from pheasant.script.renderer import Script
+
+script = Script()
 
 
 @hookimpl(hookwrapper=True)
@@ -39,9 +39,9 @@ def format_document(document, outcome, range=None):
     if result:
         text = result[0]["newText"]
 
-    config = load_config(document.path)
+    max_line_length = get_max_line_length(document.path) or 79
 
-    formatted_text = format_text(text, **config)
+    formatted_text = script.convert(text, max_line_length)
 
     if formatted_text == text:
         return
@@ -50,20 +50,14 @@ def format_document(document, outcome, range=None):
     outcome.force_result(result)
 
 
-def load_config(filename: str) -> Dict[str, Any]:
-    defaults = {"max_line_length": 79}
-
+def get_max_line_length(filename: str) -> int:
     try:
         import pycodestyle
     except ImportError:
-        return defaults
+        return 0
 
     try:
         style_guide = pycodestyle.StyleGuide(parse_argv=True)
-        max_line_length = style_guide.options.max_line_length
+        return style_guide.options.max_line_length
     except Exception:
-        return defaults
-
-    config = {"max_line_length": max_line_length}
-
-    return {**defaults, **config}
+        return 0
