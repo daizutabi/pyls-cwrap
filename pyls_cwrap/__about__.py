@@ -1,5 +1,5 @@
 __title__ = "pyls-cwrap"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 __summary__ = "cwrap plugin for python-language-server"
 __uri__ = "https://github.com/daizutabi/pyls-cwrap"
