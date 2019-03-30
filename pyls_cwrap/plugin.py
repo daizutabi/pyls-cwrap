@@ -1,6 +1,6 @@
 from pyls import hookimpl
 
-from pheasant.script.renderer import Script
+from pheasant.renderers.script.script import Script
 
 script = Script()
 
