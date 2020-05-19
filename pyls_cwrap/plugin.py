@@ -18,7 +18,8 @@ def pyls_format_range(document, range):
 
 
 def format_document(document, outcome, range=None):
-    if not document.source.startswith("# "):
+    source = document.source
+    if not source.startswith("# ") and not source.startswith('"""m'):
         return
 
     if range is None:
